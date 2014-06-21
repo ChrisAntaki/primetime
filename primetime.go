@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"math"
 	"os"
 	"strconv"
 )
 
 var maximum_saved float64 = math.Inf(1)
+var nth = flag.Int("nth", 100, "How many primes should be found, before stopping?")
 
 func Generate(ch chan<- int) {
 	i := 0
@@ -75,8 +77,12 @@ func main() {
 
 	ch := make(chan int) // Create a new channel
 	go Generate(ch)      // Launch Generate goroutine.
+
+	flag.Parse()
+	length := *nth
+
 	var prime int
-	for i := 0; i < 600; i++ {
+	for i := 0; i < length; i++ {
 		prime = <-ch
 		if float64(prime) > maximum_saved {
 			AppendToDataFile(strconv.Itoa(prime))
