@@ -76,10 +76,11 @@ func main() {
 	ch := make(chan int) // Create a new channel
 	go Generate(ch)      // Launch Generate goroutine.
 	var prime int
-	for i := 0; i < 500; i++ {
+	for i := 0; i < 600; i++ {
 		prime = <-ch
 		if float64(prime) > maximum_saved {
 			AppendToDataFile(strconv.Itoa(prime))
+			print(prime, "\n")
 		}
 		ch1 := make(chan int)
 		go Filter(ch, ch1, prime)
