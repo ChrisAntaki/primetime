@@ -82,7 +82,8 @@ func main() {
 	length := *nth
 
 	var prime int
-	for i := 0; i < length; i++ {
+	var i int
+	for i = 0; i < length; i++ {
 		prime = <-ch
 		if float64(prime) > maximum_saved {
 			AppendToDataFile(strconv.Itoa(prime))
@@ -92,5 +93,5 @@ func main() {
 		go Filter(ch, ch1, prime)
 		ch = ch1
 	}
-	print("Largest prime so far is ", prime)
+	print("prime", i, " := ", prime)
 }
