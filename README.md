@@ -7,7 +7,7 @@ Goal: Use Golang to find primes.
 
 ```sh
 
-# Find 500 primes.
+# Find 100 primes.
 go run primetime.go
 
 # Find 3000 primes.
