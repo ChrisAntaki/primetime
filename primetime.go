@@ -8,53 +8,42 @@ import (
 	"strconv"
 )
 
-var maximum_saved float64 = math.Inf(1)
+var largest_previous_prime = math.Inf(1)
 
-func Generate(ch chan<- int) {
-	i := 0
+func Generate(out chan<- int) {
+	i := LoadDataFile(out)
+	i |= 1
 
-	loaded_channel := make(chan int)
-	go LoadDataFile(loaded_channel)
-	var number int
+	largest_previous_prime = float64(i)
+
 	for {
-		number = <-loaded_channel
-		if number == -1 {
-			maximum_saved = float64(i)
-			break
-		}
-		i = number
-		ch <- i
-	}
-
-	if i < 2 {
-		i = 2
-	}
-
-	for ; ; i++ {
-		ch <- i // Send 'i' to channel 'ch'.
+		i++
+		out <- i
 	}
 }
 
-// Copy the values from channel 'in' to channel 'out',
-// removing those divisible by 'prime'.
 func Filter(in <-chan int, out chan<- int, prime int) {
 	for {
-		i := <-in // Receive value from 'in'.
+		i := <-in
 		if i%prime != 0 {
-			out <- i // Send 'i' to 'out'.
+			out <- i
 		}
 	}
 }
 
-func LoadDataFile(ch chan<- int) {
+func LoadDataFile(ch chan<- int) int {
+	var prime int
+
 	file, _ := os.Open("data.txt")
 	defer file.Close()
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		number, _ := strconv.Atoi(scanner.Text())
-		ch <- number
+		prime, _ = strconv.Atoi(scanner.Text())
+		ch <- prime
 	}
-	ch <- -1
+
+	return prime
 }
 
 func GetNth() int {
@@ -64,14 +53,21 @@ func GetNth() int {
 }
 
 func GetAppendableFile() *os.File {
-	f, err := os.OpenFile("data.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	file, err := os.OpenFile("data.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	dealbreaker(err)
-	return f
+	return file
 }
 
-func SavePrime(prime int, f *os.File) {
-	message := strconv.Itoa(prime) + "\n"
-	_, err := f.WriteString(message)
+func SavePrimes(primes []int) {
+	file := GetAppendableFile()
+	defer file.Close()
+
+	message := ""
+	for _, prime := range primes {
+		message += strconv.Itoa(prime) + "\n"
+	}
+
+	_, err := file.WriteString(message)
 	dealbreaker(err)
 }
 
@@ -81,26 +77,25 @@ func dealbreaker(err error) {
 	}
 }
 
-// The prime sieve: Daisy-chain Filter processes.
 func main() {
-	ch := make(chan int) // Create a new channel
-	go Generate(ch)      // Launch Generate goroutine.
+	channel := make(chan int)
+	go Generate(channel)
 
 	length := GetNth()
 
-	f := GetAppendableFile()
-	defer f.Close()
-
 	var i, prime int
+	new_primes := []int{}
 	for i = 0; i < length; i++ {
-		prime = <-ch
-		if float64(prime) > maximum_saved {
-			SavePrime(prime, f)
+		prime = <-channel
+		if float64(prime) > largest_previous_prime {
+			new_primes = append(new_primes, prime)
 		}
-		ch1 := make(chan int)
-		go Filter(ch, ch1, prime)
-		ch = ch1
+		new_channel := make(chan int)
+		go Filter(channel, new_channel, prime)
+		channel = new_channel
 	}
+
+	SavePrimes(new_primes)
 
 	print("prime", i, " := ", prime)
 }
