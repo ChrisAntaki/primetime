@@ -57,24 +57,28 @@ func LoadDataFile(ch chan<- int) {
 	ch <- -1
 }
 
-func AppendToDataFile(data string) {
-	filename := "data.txt"
-	f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-
-	if _, err = f.WriteString(data + "\n"); err != nil {
-		panic(err)
-	}
-}
-
 func GetNth() int {
 	var nth = flag.Int("nth", 100, "How many primes should be found, before stopping?")
 	flag.Parse()
 	return *nth
+}
+
+func GetAppendableFile() *os.File {
+	f, err := os.OpenFile("data.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	dealbreaker(err)
+	return f
+}
+
+func SavePrime(prime int, f *os.File) {
+	message := strconv.Itoa(prime) + "\n"
+	_, err := f.WriteString(message)
+	dealbreaker(err)
+}
+
+func dealbreaker(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 // The prime sieve: Daisy-chain Filter processes.
@@ -84,12 +88,14 @@ func main() {
 
 	length := GetNth()
 
+	f := GetAppendableFile()
+	defer f.Close()
+
 	var i, prime int
 	for i = 0; i < length; i++ {
 		prime = <-ch
 		if float64(prime) > maximum_saved {
-			AppendToDataFile(strconv.Itoa(prime))
-			print(prime, "\n")
+			SavePrime(prime, f)
 		}
 		ch1 := make(chan int)
 		go Filter(ch, ch1, prime)
