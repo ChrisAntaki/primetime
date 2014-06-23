@@ -9,7 +9,6 @@ import (
 )
 
 var maximum_saved float64 = math.Inf(1)
-var nth = flag.Int("nth", 100, "How many primes should be found, before stopping?")
 
 func Generate(ch chan<- int) {
 	i := 0
@@ -72,17 +71,20 @@ func AppendToDataFile(data string) {
 	}
 }
 
+func GetNth() int {
+	var nth = flag.Int("nth", 100, "How many primes should be found, before stopping?")
+	flag.Parse()
+	return *nth
+}
+
 // The prime sieve: Daisy-chain Filter processes.
 func main() {
-
 	ch := make(chan int) // Create a new channel
 	go Generate(ch)      // Launch Generate goroutine.
 
-	flag.Parse()
-	length := *nth
+	length := GetNth()
 
-	var prime int
-	var i int
+	var i, prime int
 	for i = 0; i < length; i++ {
 		prime = <-ch
 		if float64(prime) > maximum_saved {
@@ -93,5 +95,6 @@ func main() {
 		go Filter(ch, ch1, prime)
 		ch = ch1
 	}
+
 	print("prime", i, " := ", prime)
 }
