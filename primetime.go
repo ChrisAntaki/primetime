@@ -48,7 +48,8 @@ func LoadDataFile(ch chan<- int) int {
 }
 
 func GetNth() int {
-	var nth = flag.Int("nth", 100, "Find the Nth prime. (Default: 100)")
+	description := "Find the Nth prime. (Default: 100)"
+	nth := flag.Int("nth", 100, description)
 	flag.Parse()
 	return *nth
 }
