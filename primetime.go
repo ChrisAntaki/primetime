@@ -54,7 +54,8 @@ func GetNth() int {
 }
 
 func GetAppendableFile() *os.File {
-	file, err := os.OpenFile("data.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	flag := os.O_CREATE | os.O_APPEND | os.O_WRONLY
+	file, err := os.OpenFile("data.txt", flag, 0600)
 	dealbreaker(err)
 	return file
 }
