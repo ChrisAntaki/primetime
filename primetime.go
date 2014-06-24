@@ -84,7 +84,8 @@ func main() {
 	length := GetNth()
 
 	var i, prime int
-	new_primes := []int{}
+	var new_primes []int
+
 	for i = 0; i < length; i++ {
 		prime = <-channel
 		if float64(prime) > largest_previous_prime {
