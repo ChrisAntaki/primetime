@@ -3,18 +3,19 @@ package main
 import (
 	"bufio"
 	"flag"
-	"math"
 	"os"
 	"strconv"
 )
 
-var largest_previous_prime = math.Inf(1)
+var loading_has_completed = false
+var largest_previous_prime = 0
 
 func Generate(out chan<- int) {
 	i := LoadDataFile(out)
 	i |= 1
 
-	largest_previous_prime = float64(i)
+	loading_has_completed = true
+	largest_previous_prime = i
 
 	for {
 		i++
@@ -84,19 +85,24 @@ func main() {
 	length := GetNth()
 
 	var i, prime int
-	var new_primes []int
+	var primes []int
 
 	for i = 0; i < length; i++ {
+		// Get next prime.
 		prime = <-channel
-		if float64(prime) > largest_previous_prime {
-			new_primes = append(new_primes, prime)
+
+		// Save "new" primes.
+		if loading_has_completed && prime > largest_previous_prime {
+			primes = append(primes, prime)
 		}
+
+		// Pick a daisy.
 		new_channel := make(chan int)
 		go Filter(channel, new_channel, prime)
 		channel = new_channel
 	}
 
-	SavePrimes(new_primes)
+	SavePrimes(primes)
 
 	print("prime", i, " := ", prime)
 }
