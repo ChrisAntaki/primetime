@@ -48,13 +48,15 @@ func LoadDataFile(ch chan<- int) int {
 }
 
 func GetNth() int {
-	var nth = flag.Int("nth", 100, "Find the Nth prime. (Default: 100)")
+	description := "Find the Nth prime. (Default: 100)"
+	nth := flag.Int("nth", 100, description)
 	flag.Parse()
 	return *nth
 }
 
 func GetAppendableFile() *os.File {
-	file, err := os.OpenFile("data.txt", os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	flag := os.O_CREATE | os.O_APPEND | os.O_WRONLY
+	file, err := os.OpenFile("data.txt", flag, 0600)
 	dealbreaker(err)
 	return file
 }
