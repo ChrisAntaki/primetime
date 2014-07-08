@@ -8,7 +8,7 @@ func main() {
 	nth := GetNth()
 
 	primes := []int{2}
-	for i := 3; len(primes) < nth; i++ {
+	for i := 3; len(primes) < nth; i += 2 {
 		prime := true
 
 		for j := 0; j < len(primes) && primes[j]*primes[j] <= i; j++ {
