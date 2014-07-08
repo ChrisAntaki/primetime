@@ -33,9 +33,3 @@ func GetNth() int {
 	flag.Parse()
 	return *nth
 }
-
-func dealbreaker(err error) {
-	if err != nil {
-		panic(err)
-	}
-}
