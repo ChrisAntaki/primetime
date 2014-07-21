@@ -7,8 +7,11 @@ import (
 func main() {
 	nth := GetNth()
 
-	primes := []int{2}
-	for i := 3; len(primes) < nth; i += 2 {
+	primes := make([]int, nth)
+	primes[0] = 2
+	primesFound := 1
+
+	for i := 3; primesFound < nth; i += 2 {
 		prime := true
 
 		for j := 0; j < len(primes) && primes[j]*primes[j] <= i; j++ {
@@ -19,13 +22,15 @@ func main() {
 		}
 
 		if prime {
-			primes = append(primes, i)
+			primes[primesFound] = i
+			primesFound++
 		}
 	}
 
-	prime := primes[len(primes)-1]
+	prime := primes[primesFound-1]
 
 	print(prime)
+	print("\n")
 }
 
 func GetNth() int {
